@@ -2,28 +2,26 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
-
-# ROOT_DIR = Path(__file__).resolve().parent.parent
-# HOME = Path.home()
 
 OLLAMA_MODEL = "qwen3:4b"
 MAX_TRIES = 3
 
-# Make a .env file in the repo directory. Store user-specific information like file paths, API keys, passwords etc.
+# RECOMMENDED : Make a .env file in the root directory. 
+# Store user-specific information like file paths, API keys, passwords etc.
+# Load this info from .env file
 
-# Reads the local .env file
+load_dotenv()
 
-## Load API keys
-# GEMINI_API_KEY = os.getenv('GOOGLE_GEMINI_API_KEY')
 
-## Set input/outut paths
+## GEMINI_API_KEY = os.getenv('GOOGLE_GEMINI_API_KEY')
 
 ### This is where your outputs are stored. 
-#### Program stores created files here and uses some of them as cache memory.
-# PROJECT_DIR = Path(os.getenv('PROJECT_DIR'))
-PLAN_CACHE_DIR = Path(os.getenv('PLAN_CACHE_DIR'))
-SCRIPTS_DIR = Path(os.getenv('SCRIPTS_DIR'))
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+PLAN_CACHE_DIR = Path(os.getenv('PLAN_CACHE_DIR')) or (ROOT_DIR / "output")
+
+SCRIPTS_DIR = Path(os.getenv('SCRIPTS_DIR')) or (ROOT_DIR / "output")
 
 
 ### This is where task file is stored. 
