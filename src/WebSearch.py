@@ -7,7 +7,7 @@ from google import genai
 from google.genai import types
 from google.genai import types
 from google.genai.errors import ServerError
-from config import PROJECT_DIR
+from config import PROJECT_DIR, GEMINI_API_KEY
 from util_funcs import clean_json_str
 
 
@@ -29,10 +29,10 @@ def call_gemini(
     max_retries: int = 3,
 ) -> str:
     """Resilient Gemini caller with exponential backoff and model fallback."""
-    if not os.environ.get("GOOGLE_GEMINI_API_KEY"):
+    if not GEMINI_API_KEY:
         raise ValueError("Missing GEMINI_API_KEY environment variable.")
 
-    client = genai.Client(api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"))
+    client = genai.Client(api_key=GEMINI_API_KEY)
     config = types.GenerateContentConfig(
         system_instruction=system_instruction,
         temperature=temperature,
