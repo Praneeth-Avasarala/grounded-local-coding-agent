@@ -7,9 +7,11 @@ from google import genai
 from google.genai import types
 from google.genai import types
 from google.genai.errors import ServerError
-from config import PROJECT_DIR, GEMINI_API_KEY
+from config import PROJECT_DIR
 from util_funcs import clean_json_str
 
+
+GEMINI_API_KEY = os.environ.get("GOOGLE_GEMINI_API_KEY")
 
 GEMINI_MODEL_FALLBACKS = [
     "gemma-4-31b-it",         # Primary: Strongest reasoning & JSON/code planning

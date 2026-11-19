@@ -7,15 +7,15 @@ import sys
 from pathlib import Path
 
 
-from utils.util_funcs import get_clean_subprocess_env
+from util_funcs import get_clean_subprocess_env
 
 
-def validate_chunk(project_dir: Path, chunk: dict) -> tuple[bool, str, str]:
+def validate_chunk(cache_dir: Path, chunk: dict) -> tuple[bool, str, str]:
     """
     Validates syntax, installed packages, script execution, and chunk output contract.
     Returns: (passed, error_type, feedback_message)
     """
-    target_path = project_dir / chunk["target_file"]
+    target_path = cache_dir / chunk["target_file"]
     if not target_path.exists() or target_path.stat().st_size == 0:
         return False, "code", f"`{chunk['target_file']}` was not created or is empty."
 
@@ -59,7 +59,7 @@ def validate_chunk(project_dir: Path, chunk: dict) -> tuple[bool, str, str]:
     if not val_runs_target:
         run_proc = subprocess.run(
             [sys.executable, chunk["target_file"]],
-            cwd=project_dir,
+            cwd=cache_dir,
             env=sub_env,
             capture_output=True,
             text=True,
@@ -76,11 +76,11 @@ def validate_chunk(project_dir: Path, chunk: dict) -> tuple[bool, str, str]:
 
     # 4. Run the chunk's output contract acceptance test
     val_env = {**sub_env, "CHUNK_STDOUT": captured_stdout}
-    val_script = project_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
+    val_script = cache_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
     val_script.write_text(chunk["validation_code"], encoding="utf-8")
     val_proc = subprocess.run(
         [sys.executable, val_script.name],
-        cwd=project_dir,
+        cwd=cache_dir,
         env=sub_env,
         capture_output=True,
         text=True,
@@ -100,17 +100,17 @@ def validate_chunk(project_dir: Path, chunk: dict) -> tuple[bool, str, str]:
 
 
 
-def load_completed_chunks(project_dir: Path) -> set[int]:
+def load_completed_chunks(cache_dir: Path) -> set[int]:
     """Loads IDs of chunks that have already passed validation."""
-    state_file = project_dir / ".completed_chunks.json"
+    state_file = cache_dir / ".completed_chunks.json"
     if state_file.exists():
         return set(json.loads(state_file.read_text(encoding="utf-8")))
     return set()
 
 
-def save_completed_chunk(project_dir: Path, chunk_id: int) -> None:
+def save_completed_chunk(cache_dir: Path, chunk_id: int) -> None:
     """Marks a chunk ID as verified and saves state to disk."""
-    completed = load_completed_chunks(project_dir)
+    completed = load_completed_chunks(cache_dir)
     completed.add(chunk_id)
-    state_file = project_dir / ".completed_chunks.json"
+    state_file = cache_dir / ".completed_chunks.json"
     state_file.write_text(json.dumps(sorted(completed), indent=2), encoding="utf-8")
