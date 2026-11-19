@@ -12,7 +12,6 @@ MAX_TRIES = 3
 
 load_dotenv()
 
-
 ## GEMINI_API_KEY = os.getenv('GOOGLE_GEMINI_API_KEY')
 
 ### This is where your outputs are stored. 
