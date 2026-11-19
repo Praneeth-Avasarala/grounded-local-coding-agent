@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 
-from util_funcs import get_clean_subprocess_env
+from utils.util_funcs import get_clean_subprocess_env
 
 
 def validate_chunk(cache_dir: Path, chunk: dict) -> tuple[bool, str, str]:

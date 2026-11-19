@@ -1,4 +1,4 @@
-from util_funcs import clean_code_block
+from utils.util_funcs import clean_code_block
 import ollama
 
 

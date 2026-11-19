@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from LocalAI import generate_chunk_code
+from Local_model import generate_chunk_code
 from Validate import validate_chunk, load_completed_chunks, save_completed_chunk
 from WebSearch import plan_task_chunks, get_chunk_package_docs, load_or_prefetch_package_docs
 from config import PLAN_CACHE_DIR, SCRIPTS_DIR, TASK_FILE, OLLAMA_MODEL, MAX_TRIES
