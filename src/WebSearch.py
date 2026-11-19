@@ -7,11 +7,10 @@ from google import genai
 from google.genai import types
 from google.genai import types
 from google.genai.errors import ServerError
-from config import PROJECT_DIR
 from utils.util_funcs import clean_json_str
 
 
-GEMINI_API_KEY = os.environ.get("GOOGLE_GEMINI_API_KEY")
+# GEMINI_API_KEY = os.environ.get("GOOGLE_GEMINI_API_KEY")
 
 GEMINI_MODEL_FALLBACKS = [
     "gemma-4-31b-it",         # Primary: Strongest reasoning & JSON/code planning
@@ -31,10 +30,10 @@ def call_gemini(
     max_retries: int = 3,
 ) -> str:
     """Resilient Gemini caller with exponential backoff and model fallback."""
-    if not GEMINI_API_KEY:
+    if not os.environ.get("GOOGLE_GEMINI_API_KEY"):
         raise ValueError("Missing GEMINI_API_KEY environment variable.")
 
-    client = genai.Client(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=os.environ.get("GOOGLE_GEMINI_API_KEY"))
     config = types.GenerateContentConfig(
         system_instruction=system_instruction,
         temperature=temperature,
@@ -66,8 +65,9 @@ def call_gemini(
 def plan_task_chunks(task_prompt: str) -> list[dict]:
     """Decomposes the user task into sequential micro-chunks with strict I/O contracts."""
     sys_prompt = (
-        "You are a senior software architect. Break the coding task into sequential, small micro-task chunks. "
-        "Each chunk must create or modify ONE Python script file. "
+        "You are a senior software architect designing workflow for a small context coding agent." 
+        "Break the coding task into standalone (coding agent only gets one chunk as context), sequential, small micro-task chunks."
+        "Each chunk must create or modify ONE Python script file."
         "Return ONLY a JSON array of objects with exact keys:\n"
         "- `chunk_id`: integer (1, 2, ...)\n"
         "- `target_file`: string (e.g. 'generate_data.py')\n"
@@ -99,7 +99,7 @@ def load_or_prefetch_package_docs(
         cid = chunk["chunk_id"]
         if cid in completed_chunks:
             continue
-        pkg_cache = PROJECT_DIR / f".pkg_ref_chunk_{cid}.md"
+        pkg_cache = project_dir / f".pkg_ref_chunk_{cid}.md"
         if pkg_cache.exists() and pkg_cache.stat().st_size > 0:
             docs_map[cid] = pkg_cache.read_text(encoding="utf-8")
         else:

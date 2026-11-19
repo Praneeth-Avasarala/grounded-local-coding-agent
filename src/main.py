@@ -1,9 +1,9 @@
 import json
 from pathlib import Path
-from Local_model import generate_chunk_code
-from Validate import validate_chunk, load_completed_chunks, save_completed_chunk
-from WebSearch import plan_task_chunks, get_chunk_package_docs, load_or_prefetch_package_docs
-from config import PLAN_CACHE_DIR, SCRIPTS_DIR, TASK_FILE, OLLAMA_MODEL, MAX_TRIES
+from src.Local_model import generate_chunk_code
+from src.Validate import validate_chunk, load_completed_chunks, save_completed_chunk
+from src.WebSearch import plan_task_chunks, get_chunk_package_docs, load_or_prefetch_package_docs
+from src.config import PLAN_CACHE_DIR, SCRIPTS_DIR, TASK_FILE, OLLAMA_MODEL, MAX_TRIES
 
 
 
@@ -50,10 +50,10 @@ def main():
 
     plan_cache =  PLAN_CACHE_DIR / ".task_plan.json"
     if plan_cache.exists():
-        print("Loaded cached chunk plan from `.task_plan.json`...\n")
+        print("Loaded cached chunk plan from `.task_plan.json`...\n", flush=True)
         chunks = json.loads(plan_cache.read_text(encoding="utf-8"))
     else:
-        print("Step 2: Breaking task into sequential micro-chunks via Gemma 4...\n")
+        print("Breaking task into sequential micro-chunks via Gemma 4...\n", flush=True)
         chunks = plan_task_chunks(task_prompt)
         plan_cache.write_text(json.dumps(chunks, indent=2), encoding="utf-8")
 
@@ -62,13 +62,15 @@ def main():
 
     pkg_docs_map = load_or_prefetch_package_docs(PLAN_CACHE_DIR, chunks, completed_chunks)
 
+
+
     for chunk in chunks:
         cid = chunk["chunk_id"]
         tfile = chunk["target_file"]
 
         # Skip if already verified and target file is intact
-        if cid in completed_chunks and (PLAN_CACHE_DIR / tfile).exists():
-            print(f"Skipping CHUNK {cid} (`{tfile}`) - already verified in `.completed_chunks.json`.")
+        if cid in completed_chunks and (SCRIPTS_DIR / tfile).exists():
+            print(f"Skipping CHUNK {cid} (`{tfile}`) - already verified in `.completed_chunks.json`.", flush=True)
             continue
         
         print(f"\n{'='*50}\nCHUNK {cid}: {tfile}\nGoal: {chunk['goal']}\n{'='*50}")
@@ -90,15 +92,17 @@ def main():
 
         for attempt in range(1, MAX_CHUNK_TRIES + 1):
         
-            print(f"\n[Attempt {attempt}/{MAX_CHUNK_TRIES}] Generating `{tfile}` with local Ollama ({OLLAMA_MODEL})...")
-            code = generate_chunk_code(chunk, pkg_docs, existing_code, past_errors)
+            print(f"\n[Attempt {attempt}/{MAX_CHUNK_TRIES}] Generating `{tfile}` with local Ollama ({OLLAMA_MODEL})...", flush=True)
+            code = generate_chunk_code(OLLAMA_MODEL, SCRIPTS_DIR, chunk, pkg_docs, existing_code, past_errors)
             (SCRIPTS_DIR / tfile).write_text(code, encoding="utf-8")
             existing_code = code
 
-            passed, err_type, feedback = validate_chunk(PLAN_CACHE_DIR, chunk)
+            print(f"\nValidating generated '{tfile}'", flush=True)
+
+            passed, err_type, feedback = validate_chunk(SCRIPTS_DIR, chunk)
             
             if passed:
-                print(f"  [SUCCESS] Chunk {cid} verified!\n")
+                print(f"  [SUCCESS] Chunk {cid} verified!\n", flush=True)
                 save_completed_chunk(PLAN_CACHE_DIR, cid)
                 success = True
                 break
@@ -107,20 +111,25 @@ def main():
             print(f"  [FAILED] {feedback}")
 
             if err_type == "package" and attempt < MAX_CHUNK_TRIES:
-                print("  -> Refreshing package API documentation via Gemma before next Ollama retry...")
+                print("  -> Refreshing package API documentation via Gemma before next Ollama retry...", flush=True)
                 try:
                     pkg_docs = get_chunk_package_docs(chunk, error_context=feedback)
                     pkg_cache.write_text(pkg_docs, encoding="utf-8")
                 except RuntimeError as api_err:
-                    print(f"  -> Web-search API unavailable ({api_err}); continuing retry with existing package docs...")
+                    print(f"  -> Web-search API unavailable ({api_err}); continuing retry with existing package docs...", flush=True)
         if not success: 
-            print(f"\nPipeline stopped: Chunk {cid} ({tfile}) failed after {MAX_CHUNK_TRIES} attempts.")
-            return
+            # print(f"\nPipeline stopped: Chunk {cid} ({tfile}) failed after {MAX_CHUNK_TRIES} attempts.", flush=True)
+            # return
+            print(f"\nMoving on to the next chunk", flush=True)
+
+
+    # combine_chunks(SCRIPTS_DIR, chunks)
+    # print("\nALL CHUNKS COMPLETED AND VALIDATED SUCCESSFULLY! Master runner saved to run_pipeline.py.")
+
+    completed_chunks = load_completed_chunks(PLAN_CACHE_DIR)
     
-    combine_chunks(SCRIPTS_DIR, chunks)
-    print("\nALL CHUNKS COMPLETED AND VALIDATED SUCCESSFULLY! Master runner saved to run_pipeline.py.")
-
-
+    print(f"\nCHUNKS THAT PASSED GEMINI'S PREDEFINED VALIDATION TESTS : {sorted(completed_chunks)}.")
+    print("\nREVIEW ALL CHUNKS REGARDLESS. DON'T TRUST VALIDATED OR INVALIDATED OUTPUTS WITHOUT HUMAN VERIFICATION")
 
 if __name__ == "__main__":
     main()

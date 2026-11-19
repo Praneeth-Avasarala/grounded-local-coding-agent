@@ -10,12 +10,12 @@ from pathlib import Path
 from utils.util_funcs import get_clean_subprocess_env
 
 
-def validate_chunk(cache_dir: Path, chunk: dict) -> tuple[bool, str, str]:
+def validate_chunk(scripts_dir: Path, chunk: dict) -> tuple[bool, str, str]:
     """
     Validates syntax, installed packages, script execution, and chunk output contract.
     Returns: (passed, error_type, feedback_message)
     """
-    target_path = cache_dir / chunk["target_file"]
+    target_path = scripts_dir / chunk["target_file"]
     if not target_path.exists() or target_path.stat().st_size == 0:
         return False, "code", f"`{chunk['target_file']}` was not created or is empty."
 
@@ -59,7 +59,7 @@ def validate_chunk(cache_dir: Path, chunk: dict) -> tuple[bool, str, str]:
     if not val_runs_target:
         run_proc = subprocess.run(
             [sys.executable, chunk["target_file"]],
-            cwd=cache_dir,
+            cwd=scripts_dir,
             env=sub_env,
             capture_output=True,
             text=True,
@@ -76,11 +76,11 @@ def validate_chunk(cache_dir: Path, chunk: dict) -> tuple[bool, str, str]:
 
     # 4. Run the chunk's output contract acceptance test
     val_env = {**sub_env, "CHUNK_STDOUT": captured_stdout}
-    val_script = cache_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
+    val_script = scripts_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
     val_script.write_text(chunk["validation_code"], encoding="utf-8")
     val_proc = subprocess.run(
         [sys.executable, val_script.name],
-        cwd=cache_dir,
+        cwd=scripts_dir,
         env=sub_env,
         capture_output=True,
         text=True,

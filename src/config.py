@@ -25,5 +25,5 @@ SCRIPTS_DIR = Path(os.getenv('SCRIPTS_DIR')) or (ROOT_DIR / "output")
 
 ### This is where task file is stored. 
 ### Program needs this to begin web-search.
-TASK_FILE = os.getenv('TASK_FILE') # TASK_FILE = path to task file 
+TASK_FILE = Path(os.getenv('TASK_FILE')) # TASK_FILE = path to task file 
 
