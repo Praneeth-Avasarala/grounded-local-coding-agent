@@ -2,3 +2,4 @@
 input/
 *.csv
 *.xlsx
+.vscode
