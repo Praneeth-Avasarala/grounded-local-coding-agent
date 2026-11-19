@@ -1,0 +1,24 @@
+Build a modular Python pipeline in the project folder to process raw expense records, detect statistical anomalies, and generate an executive HTML/PDF or Excel report with charts.
+
+Requirements:
+1. Data Generator (`generate_data.py`):
+   - Generate 300 realistic expense transactions saved to `data/raw_expenses.csv`.
+   - Columns: `txn_id` (EXP-0001 to EXP-0300), `date` (daily dates in Jan–Mar 2026), `department` (`["Engineering", "Sales", "Marketing", "Ops"]`), `category` (`["Cloud", "Travel", "Software", "Meals"]`), `amount` (log-normal distribution around $120, plus 8 injected high-value anomalies > $2,500), and `notes` (short text descriptions, with ~5% missing/NaN values).
+
+2. Cleaning & Enrichment (`clean_enrich.py`):
+   - Read `data/raw_expenses.csv`.
+   - Fill missing `notes` with `"No description"`, parse `date` to datetime, add a `month` column (`YYYY-MM`), and convert `amount` to INR using a fixed rate (`1 USD = 84.0 INR`) in a new column `amount_inr`.
+   - Save the cleaned dataset to `data/clean_expenses.parquet` using `pyarrow`.
+
+3. Anomaly Detection (`detect_anomalies.py`):
+   - Read `data/clean_expenses.parquet`.
+   - Use `scikit-learn` (`IsolationForest`, `contamination=0.03`, `random_state=42`) on `amount_inr` grouped or encoded by `department` to flag anomalies (`is_anomaly` boolean column).
+   - Export flagged rows sorted by `amount_inr` descending to `data/anomalies.json` (records orientation, indent=2) and print `ANOMALIES_FOUND: <int>` to stdout.
+
+4. Visual Summary Report (`build_report.py`):
+   - Read `data/clean_expenses.parquet` and `data/anomalies.json`.
+   - Create a high-resolution bar chart of total `amount_inr` by `department` using `matplotlib` or `seaborn` saved to `output/dept_spend.png`.
+   - Build a multi-sheet Excel report `output/expense_audit.xlsx` using `openpyxl` with:
+     - Sheet 1 (`Summary`): Department totals and anomaly counts, with bold headers.
+     - Sheet 2 (`Anomalies`): All flagged anomaly records.
+     - Embed `output/dept_spend.png` into Sheet 1 at cell `F2`.
