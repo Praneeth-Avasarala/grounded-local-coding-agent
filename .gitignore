@@ -1,5 +1,4 @@
 .env
 input/
-output/
 *.csv
 *.xlsx
