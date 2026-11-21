@@ -8,44 +8,64 @@ from pathlib import Path
 
 
 from utils.util_funcs import get_clean_subprocess_env
+from utils.error_filter import check_syntax_fast, format_subprocess_stderr
 
 
-def validate_chunk(scripts_dir: Path, chunk: dict) -> tuple[bool, str, str]:
+def validate_chunk(
+        code_str:str,
+        tests_dir: Path,
+        scripts_dir: Path,
+        chunk: dict) -> tuple[bool, str, str]:
     """
     Validates syntax, installed packages, script execution, and chunk output contract.
     Returns: (passed, error_type, feedback_message)
     """
+
+
+    # Step 1: Instant syntax check before touching disk or spawning subprocess
+    target_file = chunk['target_file']
+    syntax_err = check_syntax_fast(code_str, target_file)
+
+
+    # root = Path(project_root).resolve()
+    # target_path = (root / target_file).resolve()
+    # target_path.write_text(code_str, encoding="utf-8")
+
+   
+    (scripts_dir / target_file).write_text(code_str, encoding="utf-8")
+
     target_path = scripts_dir / chunk["target_file"]
     if not target_path.exists() or target_path.stat().st_size == 0:
-        return False, "code", f"`{chunk['target_file']}` was not created or is empty."
+        return False, "code", f"`{chunk['target_file']}` was not created or is empty.", f"`{chunk['target_file']}` was not created or is empty." 
 
-    # 1. Syntax check
-    try:
-        py_compile.compile(str(target_path), doraise=True)
-    except py_compile.PyCompileError as e:
-        return False, "code", f"Syntax error:\n{e.msg}"
+    # # 1. Syntax check
+    # try:
+    #     py_compile.compile(str(target_path), doraise=True)
+    # except py_compile.PyCompileError as e:
+    #     return False, "code", f"Syntax error:\n{e.msg}", f"Syntax error:\n{e.msg}"
 
     # 2. Package import check
-    tree = ast.parse(target_path.read_text(encoding="utf-8"))
-    missing = []
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                pkg = alias.name.split(".")[0]
-                if importlib.util.find_spec(pkg) is None:
-                    missing.append(pkg)
-        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            pkg = node.module.split(".")[0]
-            if importlib.util.find_spec(pkg) is None:
-                missing.append(pkg)
+    # tree = ast.parse(target_path.read_text(encoding="utf-8"))
+    # missing = []
+    # for node in ast.walk(tree):
+    #     if isinstance(node, ast.Import):
+    #         for alias in node.names:
+    #             pkg = alias.name.split(".")[0]
+    #             if importlib.util.find_spec(pkg) is None:
+    #                 missing.append(pkg)
+    #     elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+    #         pkg = node.module.split(".")[0]
+    #         if importlib.util.find_spec(pkg) is None:
+    #             missing.append(pkg)
 
-    if missing:
-        return (
-            False,
-            "package",
-            f"Uninstalled or hallucinated packages imported: {', '.join(sorted(set(missing)))}. "
-            "Use only installed packages from the reference or standard library.",
-        )
+    # if missing:
+        # return (
+        #     False,
+        #     "package",
+        #     f"Uninstalled or hallucinated packages imported: {', '.join(sorted(set(missing)))}. "
+        #     "Use only installed packages from the reference or standard library.",
+        # )
+        # print("{', '.join(sorted(set(missing)))}")
 
     sub_env = get_clean_subprocess_env()
 
@@ -54,11 +74,16 @@ def validate_chunk(scripts_dir: Path, chunk: dict) -> tuple[bool, str, str]:
         "subprocess." in val_code and chunk["target_file"] in val_code
     )
 
+
+
     # 3. Run the generated chunk script
     captured_stdout = ""
+    tfile_path = scripts_dir / chunk["target_file"]
+
     if not val_runs_target:
+        print('running chunk code')
         run_proc = subprocess.run(
-            [sys.executable, chunk["target_file"]],
+            [sys.executable, str(tfile_path.resolve())],
             cwd=scripts_dir,
             env=sub_env,
             capture_output=True,
@@ -72,16 +97,32 @@ def validate_chunk(scripts_dir: Path, chunk: dict) -> tuple[bool, str, str]:
                 if ("AttributeError" in err or "TypeError" in err or "ImportError" in err)
                 else "code"
             )
-            return False, err_type, f"Execution failed:\n{err}"
+
+            err_clean, hint = format_subprocess_stderr(stderr_text=err, 
+                                                 project_root=Path(scripts_dir).resolve(),
+                                                  target_file=target_file)
+            # err_type = "code"
+            return False, err_type, err_clean, f"Execution failed:\n{err}", ""
 
     # 4. Run the chunk's output contract acceptance test
     val_env = {**sub_env, "CHUNK_STDOUT": captured_stdout}
-    val_script = scripts_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
-    val_script.write_text(chunk["validation_code"], encoding="utf-8")
+
+    tests_dir.mkdir(parents=True, exist_ok=True)
+
+  
+
+    val_script = tests_dir / f"_validate_chunk_{chunk['chunk_id']}.py"
+
+    if not val_script.exists():
+
+        val_script.write_text(chunk["validation_code"], encoding="utf-8")
+
+
+    print('running validation code')
     val_proc = subprocess.run(
-        [sys.executable, val_script.name],
+        [sys.executable, str(val_script.resolve())],
         cwd=scripts_dir,
-        env=sub_env,
+        env=val_env,
         capture_output=True,
         text=True,
         timeout=60,
@@ -93,9 +134,14 @@ def validate_chunk(scripts_dir: Path, chunk: dict) -> tuple[bool, str, str]:
             if ("AttributeError" in err or "TypeError" in err or "ImportError" in err)
             else "code"
         )
-        return False, "code", f"Output contract assertion failed:\n{err}"
 
-    return True, "none", "Chunk passed all package and output contract checks."
+        err_clean, hint = format_subprocess_stderr(stderr_text=err, 
+                                    project_root=Path(scripts_dir).resolve(),
+                                    target_file=target_file)
+        
+        return False, err_type, err_clean, f"Output contract assertion failed:\n{err}", hint
+
+    return True, "none", "none", "Chunk passed all package and output contract checks.", ""
 
 
 
