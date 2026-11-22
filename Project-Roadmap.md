@@ -68,15 +68,15 @@
 	
 			[7] [https://www.developersdigest.tech - Open weight coding showdown](https://www.developersdigest.tech/blog/glm-5-2-vs-deepseek-v4-vs-qwen3-open-weights-coding-showdown)
 	
-			[8] [https://www.youtube.com](https://www.youtube.com/watch?v=z605KVofJAY&t=187)
+			[8] (https://www.youtube.com/watch?v=z605KVofJAY&t=187)
 	
-			[9] [https://www.reddit.com](https://www.reddit.com/r/LocalLLM/comments/1ur0vdq/which_open_sourceopen_weight_local_llm_should_i/)
+			[9] (https://www.reddit.com/r/LocalLLM/comments/1ur0vdq/which_open_sourceopen_weight_local_llm_should_i/)
 	
-			[10] [https://github.com](https://github.com/xigh/open-weight-models)
+			[10] (https://github.com/xigh/open-weight-models)
 	
-			[11] [https://www.youtube.com](https://www.youtube.com/watch?v=ozyazf9xKP4&t=145)
+			[11] (https://www.youtube.com/watch?v=ozyazf9xKP4&t=145)
 	
-			[12] [https://huggingface.co](https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally)
+			[12] (https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally)
 		
 	- [ ] integreate aider 
 	- [ ] use assistant role
