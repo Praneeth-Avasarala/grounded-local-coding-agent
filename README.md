@@ -79,18 +79,20 @@ Instead of asking a local model to generate an entire multi-file project in one 
 
 ## Usage
 
-1. Write your task specification in `task.txt` in the root directory.
+1. Write your task specification in `task.txt` and include its file path in `src/config.py`.
 2. Adjust the configuration constants at the top of `main.py` if needed (`OLLAMA_MODEL`, `PROJECT_DIR`, `MAX_CHUNK_RETRIES`).
 3. Run the orchestrator:
    ```bash
-   python main.py
+   python -u -m src.main
    ```
 
+<!-- 
 Once all chunks pass validation, the orchestrator generates `my_project/run_pipeline.py` so you can run the entire verified pipeline end-to-end:
 ```bash
 cd my_project
 python run_pipeline.py
 ```
+-->
 
 ## Recommended `.gitignore`
 
