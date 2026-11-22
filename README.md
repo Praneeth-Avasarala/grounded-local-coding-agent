@@ -50,7 +50,30 @@ Instead of asking a local model to generate an entire multi-file project in one 
 - **Smart Retry & Error Memory:** Tracks past attempt errors so the local Ollama model fixes failures without repeating earlier mistakes, refreshing package docs automatically when API/attribute errors occur.
 - **API & Plan Caching:** Caches `.task_plan.json` and `.pkg_ref_chunk_*.md` locally to avoid redundant API calls across runs.
 
+## Recommended Safety precautions 
+According to [SentinelOne's AI Agent Security Best Practices](https://www.sentinelone.com/cybersecurity-101/data-and-ai/ai-agent-security/) and [Prediction Guard's Sandbox Patterns](https://predictionguard.com/blog/ai-agent-sandbox-best-practices), a rogue coding agent causes damage through **four attack vectors**. 
+- Layer 1: Filesystem Containment
+	- **Goal:** Prevent reading personal files, SSH keys, or Ollama weights.
+
+
+- Layer 2: Default-Deny Network & Localhost Firewall (UID-Based)
+	- **Goal: Apply a **default-deny `iptables` UID policy** for `ai-agent`. [[1](https://askubuntu.com/questions/1253785/iptables-trying-to-block-network-access-for-all-but-specified-users), [2](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+
+    
+- Layer 3: Resource Caps (Prevent Fork Bombs & RAM/CPU Exhaustion)
+
+	- **Goal:** Prevent a runaway infinite loop or rogue subprocess inside `ai-agent` from freezing your laptop.
+ - Apply a lightweight `systemd` user-slice limit (`MemoryMax`, `TasksMax`, `CPUQuota`) on `ai-agent` so it can never consume more than, say, 6 GB of RAM or 200 processes. [[1](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+
+
+
+- Layer 4: Ephemeral Project Snapshots (Fast Undo / Kill Switch)
+
+	- **Goal:** If `ai-agent` corrupts a repository inside `/home/ai-agent/projects`, recover instantly.
+	- Always initialize `git` inside before letting Aider, OpenCode, or Codex touch files—giving you instant rollback (`git reset --hard`) plus a single-command kill switch (`sudo pkill -9 -u ai-agent`). [[1](https://www.moring.ai/topics/asset-mgmt-kill-switch-how-does-it-work/), [2](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+
 ## Prerequisites
+
 
 1. **Python 3.10+** (Conda environment recommended)
 2. **Ollama** installed and running locally with a coding model pulled:
@@ -58,6 +81,8 @@ Instead of asking a local model to generate an entire multi-file project in one 
    ollama pull qwen3:4b
    ```
 3. **Google AI Studio API Key** (free tier works with `gemma-4-31b-it` and `gemma-4-26b-a4b-it`)
+
+
 
 ## Installation
 
