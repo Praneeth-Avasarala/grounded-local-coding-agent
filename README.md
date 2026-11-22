@@ -63,7 +63,7 @@ Instead of asking a local model to generate an entire multi-file project in one 
 
 1. Clone the repository and enter the directory:
    ```bash
-   git clone https://github.com
+   git clone https://github.com/Praneeth-Avasarala/grounded-local-coding-agent.git
    cd grounded-local-coder
    ```
 
