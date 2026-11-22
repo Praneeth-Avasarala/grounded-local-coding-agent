@@ -2,22 +2,22 @@
 - working pipeline. git tracked. 
     - web-search. 
 		- input :
-      - [ ] task along with system prompt, user prompt,  
+     		 - [ ] task along with system prompt, user prompt,  
 		- output:
-      - [ ] micro-task chunks. chunk goal, package and syntax info, strict input output contracts, validation scripts for each chunk.  
+      		- [ ] micro-task chunks. chunk goal, package and syntax info, strict input output contracts, validation scripts for each chunk.  
 	  - ollama generates one chunk code at a time. 
 		- input :
-        - [ ]  chunk goal, package and syntax info, input-output contract
-        - [ ]  Context injection : Aider repomap
+	        - [ ]  chunk goal, package and syntax info, input-output contract
+	        - [ ]  Context injection : Aider repomap
 		- output:
-        - [ ]  chunk's code script
+	        - [ ]  chunk's code script
 	- [x] Testing, Validation, Feedback loop
 		- input :
-        - [ ] chunk's code script and chunk's validation script
+	        - [ ] chunk's code script and chunk's validation script
 		- output :
-        - [ ] validation success of failure. if failure, error decides whether to do web-search again or generate code again. save error log and let next attempt see the error log.
+	        - [ ] validation success of failure. if failure, error decides whether to do web-search again or generate code again. save error log and let next attempt see the error log.
 		- max attempts limit. success or failure
-        - [ ] error filtering to increase signal-to-noise in error before injecting it into prompt for next attempt 
+	        - [ ] error filtering to increase signal-to-noise in error before injecting it into prompt for next attempt 
 	- [x] combine chunks. master script for the full task pipeline.  
 
 
