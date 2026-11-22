@@ -68,7 +68,7 @@ According to [SentinelOne's AI Agent Security Best Practices](https://www.sentin
 - Layer 3: Resource Caps (Prevent Fork Bombs & RAM/CPU Exhaustion)
 
 	- **Goal:** Prevent a runaway infinite loop or rogue subprocess inside `ai-agent` from freezing your laptop.
- - Apply a lightweight `systemd` user-slice limit (`MemoryMax`, `TasksMax`, `CPUQuota`) on `ai-agent` so it can never consume more than, say, 6 GB of RAM or 200 processes. [[1](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+ 	- Apply a lightweight `systemd` user-slice limit (`MemoryMax`, `TasksMax`, `CPUQuota`) on `ai-agent` so it can never consume more than, say, 6 GB of RAM or 200 processes. [[1](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
 
 
 
