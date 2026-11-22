@@ -102,7 +102,7 @@ According to [SentinelOne's AI Agent Security Best Practices](https://www.sentin
    pip install -r requirements.txt
    ```
 
-3. Set your API key:
+3. Set your API key. Export it explicitly into OS memory or use local `.env` file from which it can be imported into `src/config.py`
    ```bash
    export GEMINI_API_KEY="your-api-key-here"
    ```
