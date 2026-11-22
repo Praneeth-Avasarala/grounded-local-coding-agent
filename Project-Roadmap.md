@@ -52,7 +52,8 @@
 				- Apache-2.0 MoE models with low active parameter counts per token for faster local inference on machines with sufficient memory (30B-A3B uses ~17 GB at 4-bit; 80B-A3B uses ~44 GB with offloading or unified memory). [3, 11]
 			- Qwen3 8B: 
 				- Lightweight option (~5 GB VRAM) for tight memory budgets (such as 6–8 GB VRAM) and quick local tasks. [4]
-		- For detailed breakdowns of parameter sizes, licenses, and memory footprints, see the [VDF.AI local coding model guide](https://vdf.ai/blog/best-local-llm-for-coding/), the [Hugging Face local LLM overview](https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally), and the [GPUWerk open-weight coding comparison](https://gpuwerk.com/blog/best-open-weight-coding-models/). [2, 3, 12]
+		- For detailed breakdowns of parameter sizes, licenses, and memory footprints, see the [VDF.AI local coding model guide](https://vdf.ai/blog/best-local-llm-for-coding/), the [Hugging Face local LLM overview](https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally), and the [GPUWerk open-weight coding comparison](https://gpuwerk.com/blog/best-open-weight-coding-models/). [2, 3, 12] 
+    
 	        [1] [https://kilo.ai](https://kilo.ai/open-source-models)
 	
 	        [2] [https://gpuwerk.com](https://gpuwerk.com/blog/best-open-weight-coding-models/)
