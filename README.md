@@ -54,10 +54,15 @@ Instead of asking a local model to generate an entire multi-file project in one 
 According to [SentinelOne's AI Agent Security Best Practices](https://www.sentinelone.com/cybersecurity-101/data-and-ai/ai-agent-security/) and [Prediction Guard's Sandbox Patterns](https://predictionguard.com/blog/ai-agent-sandbox-best-practices), a rogue coding agent causes damage through **four attack vectors**. 
 - Layer 1: Filesystem Containment
 	- **Goal:** Prevent reading personal files, SSH keys, or Ollama weights.
+ 	- Create a dedicated user account like `ai-agent` and restrict read, write, execute permissions.  	
 
 
 - Layer 2: Default-Deny Network & Localhost Firewall (UID-Based)
-	- **Goal: Apply a **default-deny `iptables` UID policy** for `ai-agent`. [[1](https://askubuntu.com/questions/1253785/iptables-trying-to-block-network-access-for-all-but-specified-users), [2](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+	- **Goal**: Apply a **default-deny `iptables` UID policy** for `ai-agent`. [[1](https://askubuntu.com/questions/1253785/iptables-trying-to-block-network-access-for-all-but-specified-users), [2](https://siloslabs.com/blog/agent-sandboxing-best-practices)]
+	- Setup OS kernel to block **all** outgoing connections from `ai-agent` (both to other localhost services and to random external IPs) **except** the exact destinations you explicitly allowlist:	    
+	    - **Local Ollama API (`127.0.0.1:11434`):** Allowed so Aider/OpenCode can run local models.
+	    - **DNS + HTTPS (`443`):** Allowed only if you need ChatGPT/Codex cloud APIs, `git push`, or package installs (or blocked completely if you want 100% offline local-only mode!).
+	    - **Every other local port (`Open WebUI`, `RAG APIs`, `Postgres/Redis`, etc.):** Automatically blocked at the kernel level. 
 
     
 - Layer 3: Resource Caps (Prevent Fork Bombs & RAM/CPU Exhaustion)
