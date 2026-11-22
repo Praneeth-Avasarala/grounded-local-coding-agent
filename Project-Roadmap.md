@@ -24,6 +24,9 @@
 - Github repo.
 	- [x] published working version
 	- [x] Dev git branch for local development
+
+## To do next
+
 - learn about existing tools. consider integrating their best parts
     - aider, opencode, OpenClaw, copilot, 
     - pstack, ponytail, 
@@ -78,7 +81,7 @@
 	- [ ] use assistant role
 	- [ ] use 
 
-## To do next
+
 
 - Web search workflow improvements
 	- 
