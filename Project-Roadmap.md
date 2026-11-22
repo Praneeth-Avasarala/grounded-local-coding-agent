@@ -33,7 +33,7 @@
 - Web research workflow improvemens
 - Local Model workflow improvements - https://www.reddit.com/r/LocalLLM/s/Wppf7AVMfS
 	- [ ] choose best open weight/open source coding models that can run on available hardware. 
-		- The top open-weight coding models are ==Kimi K3 and GLM-5.2 / GLM-5.3 for frontier-scale repository and agentic coding, alongside Qwen3-Coder, Qwen3.8-27B, Devstral Small 2, and DeepSeek-V4 Flash== for practical local or cost-efficient setups. Most of these publish model weights rather than full training datasets and recipes, making them open-weight models. [1, 2, 3, 4, 5, 6]
+		- The top open-weight coding models are Kimi K3 and GLM-5.2 / GLM-5.3 for frontier-scale repository and agentic coding, alongside Qwen3-Coder, Qwen3.8-27B, Devstral Small 2, and DeepSeek-V4 Flash for practical local or cost-efficient setups. Most of these publish model weights rather than full training datasets and recipes, making them open-weight models. [1, 2, 3, 4, 5, 6]
 		- Frontier & Large-Scale Agentic Coding
 			- Kimi K3 (Moonshot AI): 
 				- 2.8T total / 104B active MoE with a 1M context window; leads terminal and complex multi-step coding benchmarks, typically run via API or multi-GPU clusters. [1, 7, 8]
