@@ -54,19 +54,19 @@
 				- Lightweight option (~5 GB VRAM) for tight memory budgets (such as 6–8 GB VRAM) and quick local tasks. [4]
 		- For detailed breakdowns of parameter sizes, licenses, and memory footprints, see the [VDF.AI local coding model guide](https://vdf.ai/blog/best-local-llm-for-coding/), the [Hugging Face local LLM overview](https://huggingface.co/blog/daya-shankar/open-source-llm-models-to-run-locally), and the [GPUWerk open-weight coding comparison](https://gpuwerk.com/blog/best-open-weight-coding-models/). [2, 3, 12] 
     
-	        [1] [https://kilo.ai](https://kilo.ai/open-source-models)
+	        [1] [kilo.ai - Open Source Models](https://kilo.ai/open-source-models)
 	
-	        [2] [https://gpuwerk.com](https://gpuwerk.com/blog/best-open-weight-coding-models/)
+	        [2] [https://gpuwerk.com - Best open weight coding models](https://gpuwerk.com/blog/best-open-weight-coding-models/)
 	
-			[3] [https://vdf.ai](https://vdf.ai/blog/best-local-llm-for-coding/)
+			[3] [https://vdf.ai - Best local LLM for coding](https://vdf.ai/blog/best-local-llm-for-coding/)
 	
-			[4] [https://www.promptquorum.com](https://www.promptquorum.com/local-llms/best-local-llms-for-coding)
+			[4] [https://www.promptquorum.com - Best local LLMs for coding](https://www.promptquorum.com/local-llms/best-local-llms-for-coding)
 	
-			[5] [https://www.gumloop.com](https://www.gumloop.com/blog/open-weight-ai-models)
+			[5] [https://www.gumloop.com - Open weight AI models](https://www.gumloop.com/blog/open-weight-ai-models)
 	
-			[6] [https://www.faros.ai](https://www.faros.ai/blog/open-weight-models)
+			[6] [https://www.faros.ai -  Open weight models](https://www.faros.ai/blog/open-weight-models)
 	
-			[7] [https://www.developersdigest.tech](https://www.developersdigest.tech/blog/glm-5-2-vs-deepseek-v4-vs-qwen3-open-weights-coding-showdown)
+			[7] [https://www.developersdigest.tech - Open weight coding showdown](https://www.developersdigest.tech/blog/glm-5-2-vs-deepseek-v4-vs-qwen3-open-weights-coding-showdown)
 	
 			[8] [https://www.youtube.com](https://www.youtube.com/watch?v=z605KVofJAY&t=187)
 	
