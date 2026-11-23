@@ -36,21 +36,21 @@
 	- project could have more than one sequences that can be done in parallel
 		- Research : Community-Tested & Research-Backed strategies
 			- Across multi-agent orchestration frameworks (like LangGraph, CrewAI, and academic architectures like [LLMCompiler](https://arxiv.org/abs/2312.04511)), the consensus is to **decouple dependency discovery from execution scheduling**.
-				- 1. Explicit DAG (`task_id` + `depends_on`) — _The Gold Standard_
-					- Instead of asking the LLM to assign `sequence_id` and `parallel_id`, ask it to output a **Directed Acyclic Graph (DAG)** where each task simply lists its direct prerequisites. [[1](https://arpitbhayani.me/blogs/ai-topological-sort/), [2](https://www.emergentmind.com/topics/llm-based-prompted-decomposition)]
-					- **How it works:** Every task gets a `task_id` (e.g., `"T1"`, `"T2"`) and a `depends_on: ["T1"]` array.
-					- **Why it's better:** LLMs are much more accurate at answering _"What exact inputs does this specific task need?"_ than calculating global sequence waves. Your Python orchestrator then runs a standard **Topological Sort** (or Kahn's algorithm) to dispatch any task the exact millisecond its specific `depends_on` list is satisfied—maximizing worker utilization. [[1](https://arpitbhayani.me/blogs/ai-topological-sort/)]
-				- 2. Interface-First ("Contract-First") Decomposition
-					- One of the biggest blockers to parallel coding or multi-worker pipelines is that Worker B cannot start until Worker A finishes writing a module, schema, or API.
-					- **How it works:** Prompt the planner to make **Sequence 1 strictly about defining interfaces/contracts** (e.g., Pydantic models, OpenAPI specs, function signatures, database schemas, or file stubs) with empty/mock bodies.
-					- **Why it's better:** Once the interfaces are locked in Step 1, all downstream implementation tasks _and_ test-writing tasks can run **100% in parallel** in Step 2 because every worker already knows the exact input/output shapes.
-				- 3. Map-Reduce / Divide-and-Conquer (DaC) Prompting
-					- For projects involving heavy data processing, refactoring, or multi-file analysis, research such as [Divide-and-Conquer Prompting](https://arxiv.org/abs/2402.05359) and [ParallelPrompt](https://arxiv.org/abs/2506.18728) highlights separating decomposition from aggregation. [[1](https://arxiv.org/html/2506.18728v1), [2](https://arxiv.org/html/2402.05359v1)]
-					- **How it works:** Explicitly instruct the planner to group tasks into three distinct archetypes:
-						- 1. **Fan-Out (Scatter):** Independent atomic tasks operating on isolated files/modules.
-						- 2. **Barrier/Sync:** Lightweight validation or schema checks.
-						- 3.**Fan-In (Reduce/Merge):** Integration tasks that wire the parallel outputs together (e.g., updating `main.py` or routing tables). [[1](https://docs.together.ai/docs/parallel-workflows), [2](https://arxiv.org/html/2402.05359v1)]
-					- **Why it's better:** It prevents parallel workers from colliding on shared "glue" files (like `app.py` or `index.ts`), which is the #1 cause of merge conflicts in parallel LLM workflows.
+			- 1. Explicit DAG (`task_id` + `depends_on`) — _The Gold Standard_
+				- Instead of asking the LLM to assign `sequence_id` and `parallel_id`, ask it to output a **Directed Acyclic Graph (DAG)** where each task simply lists its direct prerequisites. [[1](https://arpitbhayani.me/blogs/ai-topological-sort/), [2](https://www.emergentmind.com/topics/llm-based-prompted-decomposition)]
+				- **How it works:** Every task gets a `task_id` (e.g., `"T1"`, `"T2"`) and a `depends_on: ["T1"]` array.
+				- **Why it's better:** LLMs are much more accurate at answering _"What exact inputs does this specific task need?"_ than calculating global sequence waves. Your Python orchestrator then runs a standard **Topological Sort** (or Kahn's algorithm) to dispatch any task the exact millisecond its specific `depends_on` list is satisfied—maximizing worker utilization. [[1](https://arpitbhayani.me/blogs/ai-topological-sort/)]
+			- 2. Interface-First ("Contract-First") Decomposition
+				- One of the biggest blockers to parallel coding or multi-worker pipelines is that Worker B cannot start until Worker A finishes writing a module, schema, or API.
+				- **How it works:** Prompt the planner to make **Sequence 1 strictly about defining interfaces/contracts** (e.g., Pydantic models, OpenAPI specs, function signatures, database schemas, or file stubs) with empty/mock bodies.
+				- **Why it's better:** Once the interfaces are locked in Step 1, all downstream implementation tasks _and_ test-writing tasks can run **100% in parallel** in Step 2 because every worker already knows the exact input/output shapes.
+			- 3. Map-Reduce / Divide-and-Conquer (DaC) Prompting
+				- For projects involving heavy data processing, refactoring, or multi-file analysis, research such as [Divide-and-Conquer Prompting](https://arxiv.org/abs/2402.05359) and [ParallelPrompt](https://arxiv.org/abs/2506.18728) highlights separating decomposition from aggregation. [[1](https://arxiv.org/html/2506.18728v1), [2](https://arxiv.org/html/2402.05359v1)]
+				- **How it works:** Explicitly instruct the planner to group tasks into three distinct archetypes:
+					- 1. **Fan-Out (Scatter):** Independent atomic tasks operating on isolated files/modules.
+					- 2. **Barrier/Sync:** Lightweight validation or schema checks.
+					- 3.**Fan-In (Reduce/Merge):** Integration tasks that wire the parallel outputs together (e.g., updating `main.py` or routing tables). [[1](https://docs.together.ai/docs/parallel-workflows), [2](https://arxiv.org/html/2402.05359v1)]
+				- **Why it's better:** It prevents parallel workers from colliding on shared "glue" files (like `app.py` or `index.ts`), which is the #1 cause of merge conflicts in parallel LLM workflows.
 		- Action plan :
 			- If you want maximum parallel efficiency, switch to a **Contract-First DAG**:	
 				- 1. **Rule 1 (Contracts First):** Always generate shared schemas, interfaces, and data contracts as the root nodes (`depends_on: []`).
